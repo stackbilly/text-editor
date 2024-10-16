@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QMessageBox>
+#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -37,6 +38,9 @@ private slots:
     void onClearActionTriggered();
     void onFindActionTriggered();
     void onSelectAllActionTriggered();
+    void onZoomInActionTriggered();
+    void onZoomOutActionTriggered();
+    void onSaveAsActionTriggered();
 
 private:
     Ui::MainWindow *ui;

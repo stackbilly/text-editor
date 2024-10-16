@@ -19,6 +19,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionFind, &QAction::triggered, this, &MainWindow::onFindActionTriggered);
     connect(ui->actionClear, &QAction::triggered, this, &MainWindow::onClearActionTriggered);
     connect(ui->actionPrint, &QAction::triggered, this, &MainWindow::onPrintActionTriggered);
+    connect(ui->actionZoom_in, &QAction::triggered, this, &MainWindow::onZoomInActionTriggered);
+    connect(ui->actionZoom_out, &QAction::triggered, this, &MainWindow::onZoomOutActionTriggered);
+    connect(ui->actionSaveAs, &QAction::triggered, this, &MainWindow::onSaveAsActionTriggered);
 }
 
 MainWindow::~MainWindow()
@@ -154,4 +157,44 @@ void MainWindow::onCutActionClicked()
 void MainWindow::onPasteActionClicked()
 {
     ui->textEditor->paste();
+}
+
+void MainWindow::onRedoActionTriggered()
+{
+    ui->textEditor->redo();
+}
+
+void MainWindow::onSelectAllActionTriggered()
+{
+    ui->textEditor->selectAll();
+}
+
+void MainWindow::onFindActionTriggered()
+{
+    ui->textEditor->find("", QTextDocument::FindWholeWords);
+    qDebug() << ui->textEditor->find("", QTextDocument::FindWholeWords);
+}
+
+void MainWindow::onClearActionTriggered()
+{
+    ui->textEditor->clear();
+}
+
+void MainWindow::onPrintActionTriggered(){}
+
+void MainWindow::onZoomInActionTriggered()
+{
+    ui->textEditor->zoomIn(10);
+}
+
+void MainWindow::onZoomOutActionTriggered()
+{
+    ui->textEditor->zoomOut(10);
+}
+
+void MainWindow::onSaveAsActionTriggered()
+{
+    QString filename = QFileDialog::getSaveFileName(this, "Save File", "", "Text Files (*txt);;All Files (*)");
+
+    saveFile(filename, ui->textEditor->toPlainText());
 }
