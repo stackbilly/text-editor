@@ -180,7 +180,17 @@ void MainWindow::onClearActionTriggered()
     ui->textEditor->clear();
 }
 
-void MainWindow::onPrintActionTriggered(){}
+void MainWindow::onPrintActionTriggered()
+{
+    QPrinter printer;
+
+    QPrintDialog printDialog(&printer, this);
+    printDialog.setWindowTitle("Print Document");
+    if(printDialog.exec() == QDialog::Accepted && !ui->textEditor->toPlainText().isEmpty())
+    {
+        ui->textEditor->print(&printer);
+    }
+}
 
 void MainWindow::onZoomInActionTriggered()
 {
