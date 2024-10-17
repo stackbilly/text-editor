@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    currentFilePath = "";
+
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::onSaveActionClicked);
     connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::onOpenActionClicked);
     connect(ui->actionExit_2, &QAction::triggered, this, &MainWindow::onExitActionClicked);
@@ -22,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionZoom_in, &QAction::triggered, this, &MainWindow::onZoomInActionTriggered);
     connect(ui->actionZoom_out, &QAction::triggered, this, &MainWindow::onZoomOutActionTriggered);
     connect(ui->actionSaveAs, &QAction::triggered, this, &MainWindow::onSaveAsActionTriggered);
+    connect(ui->actionFind_Sensitive, &QAction::triggered, this, &MainWindow::onFindSensitiveActionTriggered);
+    connect(ui->actionFont, &QAction::triggered, this, &MainWindow::onFontActionTriggered);
+
 
     QShortcut* undoShortCut = new QShortcut(QKeySequence("Ctrl+Z"), this);
     connect(undoShortCut, &QShortcut::activated, ui->textEditor, &QTextEdit::undo);
@@ -49,6 +54,24 @@ MainWindow::MainWindow(QWidget *parent)
 
     QShortcut* clearShortcut = new QShortcut(QKeySequence("Ctrl+Shift+C"), this);
     connect(clearShortcut, &QShortcut::activated, ui->textEditor, &QTextEdit::clear);
+
+    QShortcut* zoomInShortCut = new QShortcut(QKeySequence("Ctrl++"), this);
+    connect(zoomInShortCut, &QShortcut::activated, this, &MainWindow::onZoomInActionTriggered);
+
+    QShortcut* zoomOutShortcut = new QShortcut(QKeySequence("Ctrl+-"), this);
+    connect(zoomOutShortcut, &QShortcut::activated, this, &MainWindow::onZoomOutActionTriggered);
+
+    QShortcut* findShortCut = new QShortcut(QKeySequence("Ctrl+F"), this);
+    connect(findShortCut, &QShortcut::activated, this, &MainWindow::onFindActionTriggered);
+
+    QShortcut* newShortCut = new QShortcut(QKeySequence("Ctrl+N"), this);
+    connect(newShortCut, &QShortcut::activated, this, &MainWindow::onNewActionClicked);
+
+    QShortcut* findSensitiveShortcut = new QShortcut(QKeySequence("Ctrl+F+S"), this);
+    connect(findSensitiveShortcut, &QShortcut::activated, this, &MainWindow::onFindSensitiveActionTriggered);
+
+    QShortcut* fontShortcut = new QShortcut(QKeySequence("Alt+F"), this);
+    connect(fontShortcut, &QShortcut::activated, this, &MainWindow::onFontActionTriggered);
 }
 
 MainWindow::~MainWindow()
@@ -56,31 +79,65 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::saveFile(const QString& filename, const QString& text)
+void MainWindow::setCurrentFilePath(const QString &filepath)
 {
-    QFile file(filename);
-
-    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    this->currentFilePath = filepath;
+    if(this->getCurrentFilePath().isEmpty())
     {
-        QTextStream out(&file);
-        out << text;
-        file.close();
-        this->setWindowTitle(filename.split("/").last().append(" - TextEdit"));
+        this->setWindowTitle("StackEdit");
+    }else
+    {
+        this->setWindowTitle(this->getCurrentFilePath().split("/").last() + " - StackEdit");
     }
-    else
+}
+
+QString MainWindow::getCurrentFilePath() const
+{
+    return this->currentFilePath;
+}
+
+void MainWindow::saveToFile(const QString& filepath, const QString& contents)
+{
+    if(filepath.isEmpty())
     {
-        QMessageBox::warning(this, "Error", "Failed to save file");
+        qDebug() << "Empty file path @ line 107";
+        return;
+    }
+    if(!filepath.isEmpty())
+    {
+        QFile file(filepath);
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QMessageBox::warning(this, "StackEdit","Cannot open file for writing.");
+            return;
+        }
+        QTextStream out(&file);
+        out << contents;
+        file.close();
+
+        this->setCurrentFilePath(filepath);
     }
 }
 
 void MainWindow::onSaveActionClicked()
-{
-    QString fileName = QFileDialog::getSaveFileName(this, "Save File", "", "Text Files (*.txt);; All Files (*)");
-    if(!fileName.isEmpty())
+{   
+    if(this->getCurrentFilePath().isEmpty() && !ui->textEditor->toPlainText().isEmpty())
     {
-        QString text = ui->textEditor->toPlainText();
-        saveFile(fileName, text);
-        QMessageBox::information(this, "Success", "File Saved Successfully!");
+        QString fileName = QFileDialog::getSaveFileName(this, "Save File", "", "Text Files (*.txt);; All Files (*)");
+        if(!fileName.isEmpty())
+        {
+            QString text = ui->textEditor->toPlainText();
+            saveToFile(fileName, text);
+            QMessageBox::information(this, "StackEdit", "File saved successfully");
+        }
+    }
+    if(this->getCurrentFilePath().isEmpty() && ui->textEditor->toPlainText().isEmpty())
+    {
+        QMessageBox::warning(this, "StackEdit", "Can't save an empty file");
+    }
+    if(!this->currentFilePath.isEmpty())
+    {
+        saveToFile(currentFilePath, ui->textEditor->toPlainText());
     }
 }
 
@@ -99,18 +156,21 @@ void MainWindow::onOpenActionClicked()
     QTextStream in(&file);
     ui->textEditor->clear();
     ui->textEditor->setText(in.readAll());
-    this->setWindowTitle(filename.split("/").last().append(" - TextEdit"));
+    this->setCurrentFilePath(filename);
+    this->setWindowTitle(filename.split("/").last().append(" - StackEdit"));
 
     file.close();
 }
 
 void MainWindow::onExitActionClicked()
 {
-    if(this->windowTitle() == "TextEdit" && !ui->textEditor->toPlainText().isEmpty())
+    if(this->getCurrentFilePath().isEmpty() && !ui->textEditor->toPlainText().isEmpty())
     {
-        if(QMessageBox::question(this, "TextEdit", "Do you want to save changes to Untitled?")
+        if(QMessageBox::question(this, "StackEdit", "Do you want to save changes to Untitled?")
             == QMessageBox::No)
         {
+            this->setCurrentFilePath("");
+            ui->textEditor->clear();
             this->close();
         }
         else
@@ -119,50 +179,69 @@ void MainWindow::onExitActionClicked()
             if(!filename.isEmpty())
             {
                 QString text = ui->textEditor->toPlainText();
-                saveFile(filename, text);
+                saveToFile(filename, text);
+                this->setCurrentFilePath("");
+                ui->textEditor->clear();
                 this->close();
             }
         }
     }
-    if(this->windowTitle() != "TextEdit")
+    if(!this->getCurrentFilePath().isEmpty())
     {
         QString title = this->windowTitle().split("-").first();
-        if(QMessageBox::question(this, "TextEdit", "Do you want to save the changes to "+title)
+        if(QMessageBox::question(this, "StackEdit", "Do you want to save the changes to "+title)
             == QMessageBox::No)
         {
+            this->setCurrentFilePath("");
+            ui->textEditor->clear();
             this->close();
         }
         else
         {
-            QString filename = QFileDialog::getSaveFileName(this, "Save File", "", "Text Files (*.txt);; All Files (*)");
-            saveFile(filename, ui->textEditor->toPlainText());
+            saveToFile(this->getCurrentFilePath(), ui->textEditor->toPlainText());
+            this->setCurrentFilePath("");
+            ui->textEditor->clear();
+            this->close();
         }
     }
-    this->close();
+    else{
+        this->setCurrentFilePath("");
+        ui->textEditor->clear();
+        this->close();
+    }
 }
 
 void MainWindow::onNewActionClicked()
 {
-    if(this->windowTitle() == "TextEdit" && ui->textEditor->toPlainText().isEmpty()) this->show();
-    else if(this->windowTitle() == "TextEdit" && !ui->textEditor->toPlainText().isEmpty())
+    if(this->getCurrentFilePath().isEmpty() && ui->textEditor->toPlainText().isEmpty()){
+        this->show();
+        this->setCurrentFilePath("");
+    }
+    if(this->getCurrentFilePath().isEmpty() && !ui->textEditor->toPlainText().isEmpty())
     {
-        if(QMessageBox::question(this, "TextEdit", "Do you want to save changes to untitled?")
-            == QMessageBox::No)
+        if(QMessageBox::question(this, "StackEdit", "Do you want to save changes to Untitled?")
+            == QMessageBox::Yes)
         {
+            QString filename = QFileDialog::getSaveFileName(this, "Save File", "", "Text Files (*.txt);; All Files (*)");
+            saveToFile(filename, ui->textEditor->toPlainText());
+            this->setCurrentFilePath(filename);
+            this->windowTitle() = "StackEdit";
             ui->textEditor->clear();
         }
         else
         {
-            QString filename = QFileDialog::getSaveFileName(this, "Save File", "", "Text Files (*.txt);; All Files (*)");
-            saveFile(filename, ui->textEditor->toPlainText());
-            this->close();
-            this->show();
+            ui->textEditor->clear();
+            this->windowTitle() = "StackEdit";
+            this->setCurrentFilePath("");
         }
     }
-    else
+    if(!this->getCurrentFilePath().isEmpty())
     {
-        this->close();
-        this->show();
+        qDebug() << currentFilePath;
+        saveToFile(this->getCurrentFilePath(), ui->textEditor->toPlainText());
+        this->windowTitle() = "StackEdit";
+        ui->textEditor->clear();
+        this->setCurrentFilePath("");
     }
 }
 
@@ -198,8 +277,36 @@ void MainWindow::onSelectAllActionTriggered()
 
 void MainWindow::onFindActionTriggered()
 {
-    ui->textEditor->find("", QTextDocument::FindWholeWords);
-    qDebug() << ui->textEditor->find("", QTextDocument::FindWholeWords);
+    bool ok;
+    QString key = QInputDialog::getText(this, "Find", "Enter value to find", QLineEdit::Normal, "", &ok);
+    if(ok && !key.isEmpty()){
+        bool found = ui->textEditor->find(key);
+        if(!found)
+        {
+            ui->textEditor->moveCursor(QTextCursor::Start);
+            found = ui->textEditor->find(key);
+        }
+        qDebug()<<found;
+    }
+    else
+    {
+        QMessageBox::information(this, "Information", "Task failed!");
+    }
+}
+
+void MainWindow::onFindSensitiveActionTriggered()
+{
+    bool ok;
+    QString key = QInputDialog::getText(this, "Find Case Sensitive",
+                                        "Enter value to find", QLineEdit::Normal, "", &ok);
+    if(ok && !key.isEmpty())
+    {
+        bool found = ui->textEditor->find(key, QTextDocument::FindCaseSensitively | QTextDocument::FindBackward);
+        if(!found){
+            ui->textEditor->moveCursor(QTextCursor::End);
+            ui->textEditor->find(key, QTextDocument::FindCaseSensitively | QTextDocument::FindBackward);
+        }
+    }
 }
 
 void MainWindow::onClearActionTriggered()
@@ -221,17 +328,71 @@ void MainWindow::onPrintActionTriggered()
 
 void MainWindow::onZoomInActionTriggered()
 {
-    ui->textEditor->zoomIn(10);
+    ui->textEditor->zoomIn();
 }
 
 void MainWindow::onZoomOutActionTriggered()
 {
-    ui->textEditor->zoomOut(10);
+    ui->textEditor->zoomOut();
 }
 
 void MainWindow::onSaveAsActionTriggered()
 {
-    QString filename = QFileDialog::getSaveFileName(this, "Save File", "", "Text Files (*txt);;All Files (*)");
+    if(this->getCurrentFilePath().isEmpty() && ui->textEditor->toPlainText().isEmpty())
+    {
+        QMessageBox::warning(this, "StackEdit", "Cannot save an empty file");
+        return;
+    }
+    if(!this->getCurrentFilePath().isEmpty() && ui->textEditor->toPlainText().isEmpty())
+    {
+        QString filename = QFileDialog::getSaveFileName(this, "Save File", "", "Text Files (*txt);;All Files (*)");
 
-    saveFile(filename, ui->textEditor->toPlainText());
+        saveToFile(filename, ui->textEditor->toPlainText());
+    }
+    if(this->getCurrentFilePath().isEmpty() && !ui->textEditor->toPlainText().isEmpty())
+    {
+        QString filename = QFileDialog::getSaveFileName(this, "Save File", "", "Text Files (*txt);;All Files (*)");
+
+        saveToFile(filename, ui->textEditor->toPlainText());
+    }
+}
+
+
+void MainWindow::onFontActionTriggered()
+{
+    bool ok;
+    QFont font = QFontDialog::getFont(&ok, this);
+    if(ok)
+        ui->textEditor->setFont(font);
+}
+
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    if(this->getCurrentFilePath().isEmpty() && ui->textEditor->toPlainText().isEmpty()) event->accept();
+    if(this->getCurrentFilePath().isEmpty() && !ui->textEditor->toPlainText().isEmpty())
+    {
+        if(QMessageBox::question(this, "StackEdit", "Save changes made to Untitled?")
+            ==QMessageBox::Yes)
+        {
+            QString filepath = QFileDialog::getSaveFileName(this, "Save File", "", "Text Files (*.txt);;All Files (*)");
+            saveToFile(filepath, ui->textEditor->toPlainText());
+            this->setCurrentFilePath("");
+            event->accept();
+        }else{
+            event->accept();
+        }
+    }
+    if(!this->getCurrentFilePath().isEmpty())
+    {
+        if(QMessageBox::question(this, "StackEdit", "Are you sure you want to exit?")
+            == QMessageBox::Yes)
+        {
+            saveToFile(this->getCurrentFilePath(), ui->textEditor->toPlainText());
+            qDebug() << "Data";
+            event->accept();
+        }else{
+            event->ignore();
+        }
+    }
 }

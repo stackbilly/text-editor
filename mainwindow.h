@@ -11,6 +11,11 @@
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QShortcut>
+#include <QDialog>
+#include <QInputDialog>
+#include <QFontDialog>
+#include <QFont>
+#include <QCloseEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -25,7 +30,13 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void saveFile(const QString& filename, const QString& text);
+    // void saveFile(const QString& filename, const QString& text);
+    void saveToFile(const QString& filepath, const QString& contents);
+    void setCurrentFilePath(const QString &filepath);
+    QString getCurrentFilePath() const;
+
+protected:
+    void closeEvent(QCloseEvent* event) override;
 
 private slots:
     void onSaveActionClicked();
@@ -44,9 +55,11 @@ private slots:
     void onZoomInActionTriggered();
     void onZoomOutActionTriggered();
     void onSaveAsActionTriggered();
+    void onFindSensitiveActionTriggered();
+    void onFontActionTriggered();
 
 private:
     Ui::MainWindow *ui;
-    enum FileState{New,Open,Saved, UnSaved};
+    QString currentFilePath;
 };
 #endif // MAINWINDOW_H

@@ -57,6 +57,7 @@ public:
     QAction *actionFind;
     QAction *actionClear;
     QAction *actionSelect_All;
+    QAction *actionFind_Sensitive;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout_2;
     QVBoxLayout *verticalLayout;
@@ -143,6 +144,8 @@ public:
         actionClear->setObjectName("actionClear");
         actionSelect_All = new QAction(MainWindow);
         actionSelect_All->setObjectName("actionSelect_All");
+        actionFind_Sensitive = new QAction(MainWindow);
+        actionFind_Sensitive->setObjectName("actionFind_Sensitive");
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
         verticalLayout_2 = new QVBoxLayout(centralwidget);
@@ -152,8 +155,7 @@ public:
         textEditor = new QTextEdit(centralwidget);
         textEditor->setObjectName("textEditor");
         textEditor->setStyleSheet(QString::fromUtf8("border: none;\n"
-"font-size:16px;\n"
-"font-weight: medium;"));
+""));
 
         verticalLayout->addWidget(textEditor);
 
@@ -203,6 +205,7 @@ public:
         menuFormat->addAction(actionPaste_2);
         menuFormat->addSeparator();
         menuFormat->addAction(actionFind);
+        menuFormat->addAction(actionFind_Sensitive);
         menuFormat->addAction(actionClear);
         menuFormat->addAction(actionSelect_All);
         menuView->addAction(actionWord_count);
@@ -212,7 +215,6 @@ public:
         menuZoom->addSeparator();
         menuZoom->addAction(actionZoom_in);
         menuZoom->addAction(actionZoom_out);
-        menuZoom->addAction(actionRestore_default_zoom);
         menuHelp_2->addAction(actionView_Feedback);
         menuHelp_2->addAction(actionGetFeedback);
         menuHelp_2->addAction(actionAbout_Text_Edit);
@@ -224,13 +226,13 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "TextEdit", nullptr));
+        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "StackEdit", nullptr));
         actionHelps->setText(QCoreApplication::translate("MainWindow", "Helps", nullptr));
-        actionNew->setText(QCoreApplication::translate("MainWindow", "New", nullptr));
+        actionNew->setText(QCoreApplication::translate("MainWindow", "New                                    Ctrl + N", nullptr));
         actionNew_Window->setText(QCoreApplication::translate("MainWindow", "New Window", nullptr));
-        actionOpen->setText(QCoreApplication::translate("MainWindow", "Open", nullptr));
-        actionSave->setText(QCoreApplication::translate("MainWindow", "Save", nullptr));
-        actionSaveAs->setText(QCoreApplication::translate("MainWindow", "Save As", nullptr));
+        actionOpen->setText(QCoreApplication::translate("MainWindow", "Open                                  Ctrl + O", nullptr));
+        actionSave->setText(QCoreApplication::translate("MainWindow", "Save                                   Ctrl + S", nullptr));
+        actionSaveAs->setText(QCoreApplication::translate("MainWindow", "Save As                             Ctrl + Shift + S", nullptr));
         actionSend_Feedback->setText(QCoreApplication::translate("MainWindow", "Status Bar", nullptr));
         actionAbout_TextEdit->setText(QCoreApplication::translate("MainWindow", "About TextEdit", nullptr));
         actionExit->setText(QCoreApplication::translate("MainWindow", "Exit", nullptr));
@@ -244,19 +246,20 @@ public:
         actionZoom_in->setText(QCoreApplication::translate("MainWindow", "Zoom in", nullptr));
         actionZoom_out->setText(QCoreApplication::translate("MainWindow", "Zoom out", nullptr));
         actionRestore_default_zoom->setText(QCoreApplication::translate("MainWindow", "Restore default zoom", nullptr));
-        actionUndo_2->setText(QCoreApplication::translate("MainWindow", "Undo", nullptr));
-        actionCut_2->setText(QCoreApplication::translate("MainWindow", "Cut", nullptr));
-        actionCopy_2->setText(QCoreApplication::translate("MainWindow", "Copy", nullptr));
-        actionPaste_2->setText(QCoreApplication::translate("MainWindow", "Paste", nullptr));
+        actionUndo_2->setText(QCoreApplication::translate("MainWindow", "Undo                                           Ctrl + Z", nullptr));
+        actionCut_2->setText(QCoreApplication::translate("MainWindow", "Cut                                              Ctrl + X", nullptr));
+        actionCopy_2->setText(QCoreApplication::translate("MainWindow", "Copy                                           Ctrl + C", nullptr));
+        actionPaste_2->setText(QCoreApplication::translate("MainWindow", "Paste                                           Ctrl + V", nullptr));
         actionDelete_2->setText(QCoreApplication::translate("MainWindow", "Delete", nullptr));
-        actionPrint->setText(QCoreApplication::translate("MainWindow", "Print", nullptr));
-        actionExit_2->setText(QCoreApplication::translate("MainWindow", "Exit", nullptr));
+        actionPrint->setText(QCoreApplication::translate("MainWindow", "Print                                  Ctrl + P", nullptr));
+        actionExit_2->setText(QCoreApplication::translate("MainWindow", "Exit                                    Ctrl + Q", nullptr));
         actionWord_count->setText(QCoreApplication::translate("MainWindow", "Word count", nullptr));
-        actionFont->setText(QCoreApplication::translate("MainWindow", "Font", nullptr));
-        actionRedo->setText(QCoreApplication::translate("MainWindow", "Redo", nullptr));
-        actionFind->setText(QCoreApplication::translate("MainWindow", "Find", nullptr));
-        actionClear->setText(QCoreApplication::translate("MainWindow", "Clear", nullptr));
-        actionSelect_All->setText(QCoreApplication::translate("MainWindow", "Select All", nullptr));
+        actionFont->setText(QCoreApplication::translate("MainWindow", "Font                    Alt + F", nullptr));
+        actionRedo->setText(QCoreApplication::translate("MainWindow", "Redo                                            Ctrl + Y", nullptr));
+        actionFind->setText(QCoreApplication::translate("MainWindow", "Find                                            Ctrl + F", nullptr));
+        actionClear->setText(QCoreApplication::translate("MainWindow", "Clear                                          Ctrl + Shift + C", nullptr));
+        actionSelect_All->setText(QCoreApplication::translate("MainWindow", "Select All                                   Ctrl + L", nullptr));
+        actionFind_Sensitive->setText(QCoreApplication::translate("MainWindow", "Find Sensitive                           Ctrl + F + S", nullptr));
         menuFile->setTitle(QCoreApplication::translate("MainWindow", "File", nullptr));
         menuFormat->setTitle(QCoreApplication::translate("MainWindow", "Edit", nullptr));
         menuView->setTitle(QCoreApplication::translate("MainWindow", "Format", nullptr));
