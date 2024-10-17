@@ -22,6 +22,33 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionZoom_in, &QAction::triggered, this, &MainWindow::onZoomInActionTriggered);
     connect(ui->actionZoom_out, &QAction::triggered, this, &MainWindow::onZoomOutActionTriggered);
     connect(ui->actionSaveAs, &QAction::triggered, this, &MainWindow::onSaveAsActionTriggered);
+
+    QShortcut* undoShortCut = new QShortcut(QKeySequence("Ctrl+Z"), this);
+    connect(undoShortCut, &QShortcut::activated, ui->textEditor, &QTextEdit::undo);
+
+    QShortcut* redoShortCut = new QShortcut(QKeySequence("Ctrl+Y"), this);
+    connect(redoShortCut, &QShortcut::activated, ui->textEditor, &QTextEdit::redo);
+
+    QShortcut* selectAllShortCut = new QShortcut(QKeySequence("Ctrl+L"), this);
+    connect(selectAllShortCut, &QShortcut::activated, ui->textEditor, &QTextEdit::selectAll);
+
+    QShortcut* saveShortcut = new QShortcut(QKeySequence("Ctrl+S"), this);
+    connect(saveShortcut, &QShortcut::activated, this, &MainWindow::onSaveActionClicked);
+
+    QShortcut* saveAsShortcut = new QShortcut(QKeySequence("Ctrl+Shift+S"), this);
+    connect(saveAsShortcut, &QShortcut::activated, this, &MainWindow::onSaveAsActionTriggered);
+
+    QShortcut* openShortcut = new QShortcut(QKeySequence("Ctrl+O"), this);
+    connect(openShortcut, &QShortcut::activated, this, &MainWindow::onOpenActionClicked);
+
+    QShortcut* printShortcut = new QShortcut(QKeySequence("Ctrl+P"), this);
+    connect(printShortcut, &QShortcut::activated, this, &MainWindow::onPrintActionTriggered);
+
+    QShortcut* exitShortcut = new QShortcut(QKeySequence("Ctrl+Q"), this);
+    connect(exitShortcut, &QShortcut::activated, this, &MainWindow::onExitActionClicked);
+
+    QShortcut* clearShortcut = new QShortcut(QKeySequence("Ctrl+Shift+C"), this);
+    connect(clearShortcut, &QShortcut::activated, ui->textEditor, &QTextEdit::clear);
 }
 
 MainWindow::~MainWindow()

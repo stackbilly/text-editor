@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QPrinter>
 #include <QPrintDialog>
+#include <QShortcut>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
